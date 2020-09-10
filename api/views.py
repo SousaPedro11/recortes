@@ -67,13 +67,15 @@ class RecortesRecorteViewSet(ReadOnlyModelViewSet):
             return self.queryset.filter(numeracao_unica=nup).all()
 
         if q:
-            return self.queryset.filter(
+            self.queryset = self.queryset.filter(
                 reduce(
                     and_, (
-                        Q(recorte__contains=term) for term in q.split('-')
+                        Q(recorte__contains=term.strip()) for term in q.split('-')
                     )
                 )
             )
+            print(self.queryset.query)
+            return self.queryset
 
         if t:
             try:
