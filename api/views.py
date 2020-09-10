@@ -1,38 +1,96 @@
-from rest_framework.viewsets import ModelViewSet
-from api.serializers import RecortesDiarioSerializer, RecortesLinkIgnoradoSerializer, RecortesMonitoradownloadsSerializer, RecortesNumeracaoErradaSerializer, RecortesRecorteSerializer, RecortesRecorteStfStjSerializer, RecortesRecorteTjmtSerializer
-from api.models import RecortesDiario, RecortesLinkIgnorado, RecortesMonitoradownloads, RecortesNumeracaoErrada, RecortesRecorte, RecortesRecorteStfStj, RecortesRecorteTjmt
+from datetime import datetime
+from functools import reduce
+from operator import and_
+
+from django.db.models import Q
+from rest_framework.exceptions import ParseError
+from rest_framework.viewsets import ReadOnlyModelViewSet
+
+from api.models import RecortesLinkIgnorado, RecortesMonitoradownloads, RecortesNumeracaoErrada, \
+    RecortesRecorte, RecortesRecorteStfStj, RecortesRecorteTjmt, RecortesDiario
+from api.serializers import RecortesDiarioSerializer, RecortesLinkIgnoradoSerializer, \
+    RecortesMonitoradownloadsSerializer, RecortesNumeracaoErradaSerializer, RecortesRecorteSerializer, \
+    RecortesRecorteStfStjSerializer, RecortesRecorteTjmtSerializer
 
 
-class RecortesDiarioViewSet(ModelViewSet):
+class RecortesDiarioViewSet(ReadOnlyModelViewSet):
     queryset = RecortesDiario.objects.order_by('pk')
     serializer_class = RecortesDiarioSerializer
 
+    def get_queryset(self):
+        p = self.request.query_params.get('p')
+        c = self.request.query_params.get('c')
+        if p:
+            try:
+                p = datetime.strptime(p, '%d%m%Y')
+                p = p.strftime("%Y-%m-%d")
+            except ValueError:
+                raise ParseError('Incorrect date format, should be ddmmyyy')
+            self.queryset = self.queryset.filter(data_publicacao=p)
 
-class RecortesLinkIgnoradoViewSet(ModelViewSet):
+        if c:
+            try:
+                c = datetime.strptime(c, '%d%m%Y')
+                c = c.strftime("%Y-%m-%d")
+            except ValueError:
+                raise ParseError('Incorrect date format, should be ddmmyyy')
+            self.queryset = self.queryset.filter(data_criacao=c)
+
+        return self.queryset.all()
+
+
+class RecortesLinkIgnoradoViewSet(ReadOnlyModelViewSet):
     queryset = RecortesLinkIgnorado.objects.order_by('pk')
     serializer_class = RecortesLinkIgnoradoSerializer
 
 
-class RecortesMonitoradownloadsViewSet(ModelViewSet):
+class RecortesMonitoradownloadsViewSet(ReadOnlyModelViewSet):
     queryset = RecortesMonitoradownloads.objects.order_by('pk')
     serializer_class = RecortesMonitoradownloadsSerializer
 
 
-class RecortesNumeracaoErradaViewSet(ModelViewSet):
+class RecortesNumeracaoErradaViewSet(ReadOnlyModelViewSet):
     queryset = RecortesNumeracaoErrada.objects.order_by('pk')
     serializer_class = RecortesNumeracaoErradaSerializer
 
 
-class RecortesRecorteViewSet(ModelViewSet):
-    queryset = RecortesRecorte.objects.order_by('pk')
+class RecortesRecorteViewSet(ReadOnlyModelViewSet):
+    queryset = RecortesRecorte.objects
     serializer_class = RecortesRecorteSerializer
 
+    def get_queryset(self):
+        t = self.request.query_params.get('t')
+        nup = self.request.query_params.get('nup')
+        q = self.request.query_params.get('q')
 
-class RecortesRecorteStfStjViewSet(ModelViewSet):
+        if nup:
+            return self.queryset.filter(numeracao_unica=nup).all()
+
+        if q:
+            return self.queryset.filter(
+                reduce(
+                    and_, (
+                        Q(recorte__contains=term) for term in q.split('-')
+                    )
+                )
+            )
+
+        if t:
+            try:
+                t = datetime.strptime(t, '%d%m%Y')
+                t = t.strftime("%Y-%m-%d")
+            except ValueError:
+                raise ParseError('Incorrect date format, should be ddmmyyy')
+            self.queryset = self.queryset.filter(data_publicacao=t)
+
+        return self.queryset.all()
+
+
+class RecortesRecorteStfStjViewSet(ReadOnlyModelViewSet):
     queryset = RecortesRecorteStfStj.objects.order_by('pk')
     serializer_class = RecortesRecorteStfStjSerializer
 
 
-class RecortesRecorteTjmtViewSet(ModelViewSet):
+class RecortesRecorteTjmtViewSet(ReadOnlyModelViewSet):
     queryset = RecortesRecorteTjmt.objects.order_by('pk')
     serializer_class = RecortesRecorteTjmtSerializer
