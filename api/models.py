@@ -64,7 +64,7 @@ class RecortesMonitoradownloads(models.Model):
 
 
 class RecortesNumeracaoErrada(models.Model):
-    id = models.IntegerField(blank=True, null=True)
+    id = models.IntegerField(primary_key=True, blank=True, null=False)
     data_criacao = models.DateField(blank=True, null=True)
     data_modificacao = models.DateTimeField(blank=True, null=True)
     numeracao_unica = models.CharField(max_length=20, blank=True, null=True)
