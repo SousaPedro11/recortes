@@ -12,6 +12,7 @@ markdown = "*"
 python-dotenv = "*"
 drf-generators = "*"
 django-filter = "*"
+psycopg2-binary = "*"
 
 [requires]
 python_version = "3.8"
