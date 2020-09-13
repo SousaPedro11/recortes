@@ -62,6 +62,8 @@ class RecortesRecorteViewSet(ReadOnlyModelViewSet):
         t = self.request.query_params.get('t')
         nup = self.request.query_params.get('nup')
         q = self.request.query_params.get('q')
+        tj = self.request.query_params.get('tj')
+        ttj = {}
 
         if nup:
             return self.queryset.filter(numeracao_unica=nup).all()
@@ -74,16 +76,21 @@ class RecortesRecorteViewSet(ReadOnlyModelViewSet):
                     )
                 )
             )
-            print(self.queryset.query)
-            return self.queryset
+            return self.queryset.all()
 
         if t:
             try:
                 t = datetime.strptime(t, '%d%m%Y')
                 t = t.strftime("%Y-%m-%d")
+                ttj['data_publicacao'] = t
             except ValueError:
                 raise ParseError('Incorrect date format, should be ddmmyyy')
-            self.queryset = self.queryset.filter(data_publicacao=t)
+
+        if tj:
+            ttj['codigo_diario'] = tj
+
+        if ttj:
+            return self.queryset.filter(**ttj).all()
 
         return self.queryset.all()
 
