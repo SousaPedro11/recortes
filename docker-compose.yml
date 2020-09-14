@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+    - '127.0.0.1:6379:6379'
+    command: redis-server --requirepass "redispass"
+
+  recortes:
+    image: recortes
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - "./:/app"
+    ports:
+      - '8001:8001'
+    depends_on:
+      - redis
+#    command: pipenv run python manage.py runserver 0.0.0.0:8000
+

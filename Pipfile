@@ -15,6 +15,8 @@ django-filter = "*"
 psycopg2-binary = "*"
 django-rest-auth = "*"
 django-allauth = "*"
+django-redis = "*"
+redis = "*"
 
 [requires]
 python_version = "3.8"

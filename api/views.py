@@ -65,9 +65,10 @@ class RecortesTribunaisViewset(ReadOnlyModelViewSet):
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        count = self.request.query_params.get('count').replace('[', '').replace(']', '')
+        count = self.request.query_params.get('count')
 
         if count:
+            count = count.replace('[', '').replace(']', '')
             self.queryset = self.queryset.filter(
                 reduce(
                     and_, (
@@ -94,7 +95,7 @@ class RecortesRecorteViewSet(ReadOnlyModelViewSet):
     def get_queryset(self):
         t = self.request.query_params.get('t')
         nup = self.request.query_params.get('nup')
-        q = self.request.query_params.get('q').replace('[', '').replace(']', '')
+        q = self.request.query_params.get('q')
         tj = self.request.query_params.get('tj')
         ttj = {}
 
@@ -102,6 +103,7 @@ class RecortesRecorteViewSet(ReadOnlyModelViewSet):
             return self.queryset.filter(numeracao_unica=nup).all()
 
         if q:
+            q = q.replace('[', '').replace(']', '')
             self.queryset = self.queryset.filter(
                 reduce(
                     and_, (
