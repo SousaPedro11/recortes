@@ -1,15 +1,4 @@
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#   * Rearrange models' order
-#   * Make sure each model has one field with primary_key=True
-#   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
-#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
-# Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
-# Unable to inspect table 'django_migrations'
-# The error was: permission denied for relation django_migrations
-# Unable to inspect table 'recortes_controle'
-# The error was: permission denied for relation recortes_controle
 
 
 class RecortesDiario(models.Model):
@@ -19,10 +8,9 @@ class RecortesDiario(models.Model):
     codigo_diario = models.CharField(max_length=200)
 
     class Meta:
+        app_label = 'api'
         managed = False
         db_table = 'recortes_diario'
-# Unable to inspect table 'recortes_downloaddiario'
-# The error was: permission denied for relation recortes_downloaddiario
 
 
 class RecortesLinkIgnorado(models.Model):
@@ -39,10 +27,9 @@ class RecortesLinkIgnorado(models.Model):
     numeracao_unica = models.CharField(max_length=20)
 
     class Meta:
+        app_label = 'api'
         managed = False
         db_table = 'recortes_link_ignorado'
-# Unable to inspect table 'recortes_logcommanddownload'
-# The error was: permission denied for relation recortes_logcommanddownload
 
 
 class RecortesMonitoradownloads(models.Model):
@@ -53,14 +40,9 @@ class RecortesMonitoradownloads(models.Model):
     quantidade = models.SmallIntegerField()
 
     class Meta:
+        app_label = 'api'
         managed = False
         db_table = 'recortes_monitoradownloads'
-# Unable to inspect table 'recortes_nomecaderno'
-# The error was: permission denied for relation recortes_nomecaderno
-# Unable to inspect table 'recortes_nomediario'
-# The error was: permission denied for relation recortes_nomediario
-# Unable to inspect table 'recortes_nomediario_20191024'
-# The error was: permission denied for relation recortes_nomediario_20191024
 
 
 class RecortesNumeracaoErrada(models.Model):
@@ -76,6 +58,7 @@ class RecortesNumeracaoErrada(models.Model):
     corrigido = models.BooleanField(blank=True, null=True)
 
     class Meta:
+        app_label = 'api'
         managed = False
         db_table = 'recortes_numeracao_errada'
 
@@ -94,6 +77,7 @@ class RecortesRecorte(models.Model):
     nup_invalido_msg = models.CharField(max_length=120, blank=True, null=True)
 
     class Meta:
+        app_label = 'api'
         managed = False
         db_table = 'recortes_recorte'
 
@@ -107,6 +91,7 @@ class RecortesRecorteStfStj(models.Model):
     codigo_diario = models.CharField(max_length=200)
 
     class Meta:
+        app_label = 'api'
         managed = False
         db_table = 'recortes_recorte_stf_stj'
 
@@ -121,7 +106,6 @@ class RecortesRecorteTjmt(models.Model):
     caderno = models.CharField(max_length=200, blank=True, null=True)
 
     class Meta:
+        app_label = 'api'
         managed = False
         db_table = 'recortes_recorte_tjmt'
-# Unable to inspect table 'recortes_registrodownloaddiario'
-# The error was: permission denied for relation recortes_registrodownloaddiario

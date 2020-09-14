@@ -3,6 +3,8 @@ from functools import reduce
 from operator import and_
 
 from django.db.models import Q
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework.exceptions import ParseError
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
@@ -10,7 +12,7 @@ from api.models import RecortesLinkIgnorado, RecortesMonitoradownloads, Recortes
     RecortesRecorte, RecortesRecorteStfStj, RecortesRecorteTjmt, RecortesDiario
 from api.serializers import RecortesDiarioSerializer, RecortesLinkIgnoradoSerializer, \
     RecortesMonitoradownloadsSerializer, RecortesNumeracaoErradaSerializer, RecortesRecorteSerializer, \
-    RecortesRecorteStfStjSerializer, RecortesRecorteTjmtSerializer
+    RecortesRecorteStfStjSerializer, RecortesRecorteTjmtSerializer, RecortesTribunaisSerializer
 
 
 class RecortesDiarioViewSet(ReadOnlyModelViewSet):
@@ -54,14 +56,45 @@ class RecortesNumeracaoErradaViewSet(ReadOnlyModelViewSet):
     serializer_class = RecortesNumeracaoErradaSerializer
 
 
+class RecortesTribunaisViewset(ReadOnlyModelViewSet):
+    queryset = RecortesRecorte.objects
+    serializer_class = RecortesTribunaisSerializer
+
+    @method_decorator(cache_page(60 * 2))
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        count = self.request.query_params.get('count').replace('[', '').replace(']', '')
+
+        if count:
+            self.queryset = self.queryset.filter(
+                reduce(
+                    and_, (
+                        Q(codigo_diario__icontains=term.strip()) for term in count.split('-')
+                    )
+                )
+            ).values('recorte')
+            print(self.queryset.query)
+            return self.queryset.count()
+
+        self.queryset = self.queryset.filter(recorte__isnull=False).values('codigo_diario').distinct()
+        print(self.queryset.query)
+        return self.queryset
+
+
 class RecortesRecorteViewSet(ReadOnlyModelViewSet):
     queryset = RecortesRecorte.objects
     serializer_class = RecortesRecorteSerializer
 
+    @method_decorator(cache_page(60 * 2))
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
     def get_queryset(self):
         t = self.request.query_params.get('t')
         nup = self.request.query_params.get('nup')
-        q = self.request.query_params.get('q')
+        q = self.request.query_params.get('q').replace('[', '').replace(']', '')
         tj = self.request.query_params.get('tj')
         ttj = {}
 
@@ -72,7 +105,7 @@ class RecortesRecorteViewSet(ReadOnlyModelViewSet):
             self.queryset = self.queryset.filter(
                 reduce(
                     and_, (
-                        Q(recorte__contains=term.strip()) for term in q.split('-')
+                        Q(recorte__icontains=term.strip()) for term in q.split('-')
                     )
                 )
             )
